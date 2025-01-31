@@ -24,7 +24,7 @@ import sys
 import time
 import re
 import json
-from progress.bar import IncrementalBar
+# from progress.bar import IncrementalBar
 
 #Variables:
 api_get_keys = 'https://sshservice.cscs.ch/api/v1/auth/ssh-keys/signed-key'
@@ -107,16 +107,22 @@ def set_passphrase():
 
 def main():
     user, pwd, otp = get_user_credentials()
-    bar = IncrementalBar('Retrieving signed SSH keys:', max = 3)
+    # bar = IncrementalBar('Retrieving signed SSH keys:', max = 3)
+    print("Retrieving signed SSH keys...")
     public, private = get_keys(user, pwd, otp)
-    bar.next()
+    # bar.next()
+    print("1/5")
     time.sleep(1)
-    bar.next()
+    # bar.next()
+    print("2/5")
     time.sleep(1)
+    print("3/5 save_keys(public,private)")
     save_keys(public, private)
-    bar.next()
+    # bar.next()
+    print("4/5")
     time.sleep(1)
-    bar.finish()
+    print("5/5")
+    # bar.finish()
     # if (set_passphrase()):
     if (False):
         substrg = ", using the passphrase you have set:"
