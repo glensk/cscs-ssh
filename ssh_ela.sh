@@ -68,6 +68,8 @@ sshela () {
         echo "#############################################################"
         echo "==> running: python cscs-keygen.py"
         python cscs-keygen.py
+        echo "==> running: python cscs-keygen.py done"
+
         # touch $folder_ssh/cscs-key
         # touch $folder_ssh/cscs-key-cert.pub
 

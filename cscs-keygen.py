@@ -33,7 +33,7 @@ api_get_keys = 'https://sshservice.cscs.ch/api/v1/auth/ssh-keys/signed-key'
 def get_user_credentials():
     # user = input("Username: ")
     user = 'aglensk'
-    pwd = getpass.getpass()
+    pwd = getpass.getpass() # this askes on the scrren for the password.
     otp = getpass.getpass("Enter OTP (6-digit code):")
     if not (re.match('^\d{6}$', otp)):
        sys.exit("Error: OTP must be a 6-digit code.")
