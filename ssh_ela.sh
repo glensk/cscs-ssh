@@ -62,7 +62,7 @@ sshela () {
     # echo "runningcscskeygen: $runningcscskeygen"
     if [ "$runningcscskeygen" = "true" ];then
         cd ~/gdrive/repos_sdsc/cscs-ssh
-        echo "Am now in folder `pwd`"
+        echo "Am now in folder: `pwd`"
         echo "#############################################################"
         echo "# Next you will need your CSCS credentials (aglensk, pw, OTP)"
         echo "#############################################################"
