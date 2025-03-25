@@ -19,11 +19,11 @@ ssh_ela () {
     folder_cscs=$folder_ssh/cscs_daily_key
     [ ! -e $folder_cscs ] && mkdir -p $folder_cscs
     folder_control_path_files="$HOME/.ssh/ControlPath_files"
-    my_username="aglensk" 
-    echob "for now fixed to username $my_username, change this later on"
+    my_cscs_username="aglensk" 
+    echob "for now fixed my_cscs_username to $my_cscs_username, change this later on"
     [ ! -e $folder_control_path_files ] && mkdir -p $folder_control_path_files
 
-    control_path_file="$HOME/.ssh/ControlPath_files/$my_username@ela.cscs.ch:22"
+    control_path_file="$HOME/.ssh/ControlPath_files/$my_cscs_username@ela.cscs.ch:22"
     if [ ! -e $control_path_file ];then
         :   
     else
@@ -119,7 +119,7 @@ ssh_ela () {
         echog "cscs_otp: Got it"
 
         # echog "#############################################################"
-        # echog "# Next you will need your CSCS credentials ($my_username, pw, OTP)"
+        # echog "# Next you will need your CSCS credentials ($my_cscs_username, pw, OTP)"
         # echog "#############################################################"
         echog "==> running: python cscs-keygen.py to download the daily ssh-key file pair from cscs."
         python cscs-keygen.py $cscs_username $cscs_passwords $cscs_otp
@@ -173,10 +173,10 @@ ssh_ela () {
                 echog "File $cscs_private_key exists and is not older than 1 day. As it should be."
             fi
         fi
-        echog "scp -i $cscs_private_key $cscs_public_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub"
-               scp -i $cscs_private_key $cscs_public_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub
-        echog "scp -i $cscs_private_key $cscs_private_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key"
-               scp -i $cscs_private_key $cscs_private_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key
+        echog "scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub"
+               scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub
+        echog "scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key"
+               scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key
     fi
 
     echo "#############################################################"
@@ -186,7 +186,7 @@ ssh_ela () {
     echo "# ssh -i ~/.ssh/cscs-key eiger         # or                 #"
     echo "# ssh -i ~/.ssh/cscs-key bris ten  ==> this I can not do currently though todi is up  #"
     echo "#############################################################"
-    ssh -i $cscs_private_key $my_username@ela.cscs.ch
+    ssh -i $cscs_private_key $my_cscs_username@ela.cscs.ch
 }
 
 ssh_ela
