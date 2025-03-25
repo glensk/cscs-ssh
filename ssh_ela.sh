@@ -1,8 +1,43 @@
-sshela () {
-    runningcscskeygen="true"
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+echor () {
+	printf "${RED}[ `basename $0` ] $1 ${NC}\n"
+}
+echog () {
+	printf "${GREEN}[ `basename $0` ] $1 ${NC}\n"
+}
+echob () {
+	printf "${BLUE}[ `basename $0` ] $1 ${NC}\n"
+}
+
+
+ssh_ela () {
+    running_cscs_keygen="true"
     folder_ssh=$HOME/.ssh
     folder_cscs=$folder_ssh/cscs_daily_key
     [ ! -e $folder_cscs ] && mkdir -p $folder_cscs
+    folder_control_path_files="$HOME/.ssh/ControlPath_files"
+    my_username="aglensk" 
+    echob "for now fixed to username $my_username, change this later on"
+    [ ! -e $folder_control_path_files ] && mkdir -p $folder_control_path_files
+
+    control_path_file="$HOME/.ssh/ControlPath_files/$my_username@ela.cscs.ch:22"
+    if [ ! -e $control_path_file ];then
+        :   
+    else
+        echog "Great, $control_path_file exists."
+        back=`ssh ela "hostname" | cut -c-3`
+        # echo "back: $back"
+        if [ "$back" == "ela" ];then
+            echog "Great, you are successfully connected to ela through ControlPathFile $control_path_file. Nothing to do."
+            return 0
+        else
+            echob "It seems the ControlPathFile $control_path_file has no working ssh connection. Will remove it and try to connect."
+            rm $control_path_file   
+        fi
+    fi    
 
     cscs_public_key=$folder_cscs/cscs-key-cert.pub
     cscs_public_key_script=$folder_ssh/cscs-key-cert.pub
@@ -22,10 +57,10 @@ sshela () {
             ((elapsedSeconds = currentSeconds - lastModificationSeconds))
             elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
             echo "cscs_public_key: $cscs_public_key ==> is very recent ==> $elapsedHours hours. Nothing to do."
-            runningcscskeygen="false"
+            running_cscs_keygen="false"
         fi
     else
-        echo "cscs_public_key : $cscs_public_key ==> does not exist. Will run cscs-keygen.py"
+        echog "cscs_public_key : $cscs_public_key ==> does not exist. Will run cscs-keygen.py"
     fi
 
 
@@ -39,7 +74,7 @@ sshela () {
             echo "rm $cscs_private_key"
             rm $cscs_private_key # file is older then one day
             echo "cscs_private_key: $cscs_private_key ==> I have removed it since it was older then one day. Will run cscs-keygen.py"
-            [ "$runningcscskeygen" = "false" ] && runningcscskeygen="true"
+            [ "$running_cscs_keygen" = "false" ] && running_cscs_keygen="true"
         else
             # file exists and is recent
             path_to_file=$cscs_private_key
@@ -50,25 +85,45 @@ sshela () {
             echo "cscs_private_key: $cscs_private_key ==> is very recent ==> $elapsedHours hours. Nothing to do."
         fi
     else
-        echo "cscs_private_key: $cscs_private_key ==> does not exist. Will run cscs-keygen.py"
-        [ "$runningcscskeygen" = "false" ] && runningcscskeygen="true"
+        echog "cscs_private_key: $cscs_private_key ==> does not exist. Will run cscs-keygen.py"
+        [ "$running_cscs_keygen" = "false" ] && running_cscs_keygen="true"
     fi
 
 
-    [ ! -e "$cscs_public_key" ] && [ -e   "$cscs_private_key" ] && rm $cscs_private_key && runningcscskeygen="true"
-    [ -e   "$cscs_public_key" ] && [ ! -e "$cscs_private_key" ] && rm $cscs_public_key  && runningcscskeygen="true"
-    [ ! -e "$cscs_public_key" ] && [ ! -e "$cscs_private_key" ] && runningcscskeygen="true"
+    [ ! -e "$cscs_public_key" ] && [ -e   "$cscs_private_key" ] && rm $cscs_private_key && running_cscs_keygen="true"
+    [ -e   "$cscs_public_key" ] && [ ! -e "$cscs_private_key" ] && rm $cscs_public_key  && running_cscs_keygen="true"
+    [ ! -e "$cscs_public_key" ] && [ ! -e "$cscs_private_key" ] && running_cscs_keygen="true"
 
-    # echo "runningcscskeygen: $runningcscskeygen"
-    if [ "$runningcscskeygen" = "true" ];then
+    # echo "running_cscs_keygen: $running_cscs_keygen"
+    if [ "$running_cscs_keygen" = "true" ];then
         cd ~/gdrive/repos_sdsc/cscs-ssh
-        echo "Am now in folder: `pwd`"
-        echo "#############################################################"
-        echo "# Next you will need your CSCS credentials (aglensk, pw, OTP)"
-        echo "#############################################################"
-        echo "==> running: python cscs-keygen.py"
-        python cscs-keygen.py
-        echo "==> running: python cscs-keygen.py done"
+        echog "Am now in folder: `pwd`"
+        echog "Running \`op item get ...\` to get cscs_username."
+        cscs_username=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --reveal --field username`
+        if [ "$cscs_username" = "" ];then
+            echor "cscs_username is empty. Exit."
+            return 1
+        fi
+        echog "cscs_username: $cscs_username ==> Now running \`op item get ...\` to get cscs_passwords."
+        cscs_passwords=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --reveal --field password`
+        if [ "$cscs_passwords" = "" ];then
+            echor "cscs_passwords is empty. Exit."
+            return 1
+        fi
+        echog "cscs_passwords: Got it. ==> Now running \`op item get ...\` to get cscs_otp."
+        cscs_otp=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --otp`
+        if [ "$cscs_otp" = "" ];then
+            echor "cscs_otp is empty. Exit."
+            return 1
+        fi
+        echog "cscs_otp: Got it"
+
+        # echog "#############################################################"
+        # echog "# Next you will need your CSCS credentials ($my_username, pw, OTP)"
+        # echog "#############################################################"
+        echog "==> running: python cscs-keygen.py to download the daily ssh-key file pair from cscs."
+        python cscs-keygen.py $cscs_username $cscs_passwords $cscs_otp
+        echog "==> running: python cscs-keygen.py done"
 
         # touch $folder_ssh/cscs-key
         # touch $folder_ssh/cscs-key-cert.pub
@@ -76,7 +131,7 @@ sshela () {
         
         
         if [ ! -e "$cscs_public_key_script" ];then
-            echo "$cscs_public_key_script does not exist. Exit."
+            echor "$cscs_public_key_script was not created (1) => It seems cscs-keygen.py was not successful. Exit."
             return 1
         else
             echog "created key in $cscs_public_key_script, will move it to $cscs_public_key"
@@ -85,7 +140,7 @@ sshela () {
 
 
         if [ ! -e "$cscs_private_key_script" ];then
-            echo "$cscs_private_key_script does not exist. Exit."
+            echor "$cscs_private_key_script was not created (2) => It seems cscs-keygen.py was not successful. Exit."
             return 1
         else
             echog "created key in $cscs_private_key_script,              will move it to $cscs_private_key"
@@ -95,11 +150,11 @@ sshela () {
         
 
         if [ ! -e "$cscs_public_key" ];then
-            echo "$cscs_public_key does not exist. Exit."
+            echor "$cscs_public_key does not exist. Exit."
             return 1
         else
             if [[ $(find "$cscs_public_key" -mtime +1 -print) ]]; then
-                echo "File $cscs_public_key exists BUT is older than 1 day. Therefor, did not obtain proper certificat. Exit."
+                echor "File $cscs_public_key exists BUT is older than 1 day. Therefor, did not obtain proper certificate. Exit."
                 return 1
             else
                 echog "File $cscs_public_key exists and is not older than 1 day. As it should be."
@@ -112,16 +167,16 @@ sshela () {
             return 1
         else
             if [[ $(find "$cscs_private_key" -mtime +1 -print) ]]; then
-                echor "File $cscs_private_key exists BUT is older than 1 day. Therefor, did not obtain proper certificat. Exit."
+                echor "File $cscs_private_key exists BUT is older than 1 day. Therefor, did not obtain proper certificate. Exit."
                 return 1
             else
                 echog "File $cscs_private_key exists and is not older than 1 day. As it should be."
             fi
         fi
-        echog "scp -i $cscs_private_key $cscs_public_key aglensk@ela.cscs.ch:/users/aglensk/.ssh/cscs-key-cert.pub"
-               scp -i $cscs_private_key $cscs_public_key aglensk@ela.cscs.ch:/users/aglensk/.ssh/cscs-key-cert.pub
-        echog "scp -i $cscs_private_key $cscs_private_key aglensk@ela.cscs.ch:/users/aglensk/.ssh/cscs-key"
-               scp -i $cscs_private_key $cscs_private_key aglensk@ela.cscs.ch:/users/aglensk/.ssh/cscs-key
+        echog "scp -i $cscs_private_key $cscs_public_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub"
+               scp -i $cscs_private_key $cscs_public_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub
+        echog "scp -i $cscs_private_key $cscs_private_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key"
+               scp -i $cscs_private_key $cscs_private_key $my_username@ela.cscs.ch:$HOME/.ssh/cscs-key
     fi
 
     echo "#############################################################"
@@ -129,9 +184,9 @@ sshela () {
     echo "# once there: run:                                          #"
     echo "# ssh -i ~/.ssh/cscs-key daint.alps    # or                 #"
     echo "# ssh -i ~/.ssh/cscs-key eiger         # or                 #"
-    echo "# ssh -i ~/.ssh/cscs-key bristen  ==> this I can not do currently though todi is up  #"
+    echo "# ssh -i ~/.ssh/cscs-key bris ten  ==> this I can not do currently though todi is up  #"
     echo "#############################################################"
-    ssh -i $cscs_private_key aglensk@ela.cscs.ch
+    ssh -i $cscs_private_key $my_username@ela.cscs.ch
 }
 
-sshela
+ssh_ela

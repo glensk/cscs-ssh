@@ -106,7 +106,14 @@ def set_passphrase():
 
 
 def main():
-    user, pwd, otp = get_user_credentials()
+    # user, pwd, otp = get_user_credentials()
+    user = sys.argv[1]
+    pwd = sys.argv[2]
+    otp = sys.argv[3]
+    print("user: ", user)
+    print("pwd: ", pwd)
+    print("otp: ", otp)
+    # sys.exit()
     # bar = IncrementalBar('Retrieving signed SSH keys:', max = 3)
     print("Retrieving signed SSH keys...")
     public, private = get_keys(user, pwd, otp)
