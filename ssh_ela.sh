@@ -56,7 +56,7 @@ ssh_ela () {
             currentSeconds=$(date +%s)
             ((elapsedSeconds = currentSeconds - lastModificationSeconds))
             elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
-            echo "cscs_public_key: $cscs_public_key ==> is very recent ==> $elapsedHours hours. Nothing to do."
+            echog "cscs_public_key: $cscs_public_key ==> is very recent (1) ==> $elapsedHours hours. Nothing to do."
             running_cscs_keygen="false"
         fi
     else
@@ -82,7 +82,7 @@ ssh_ela () {
             currentSeconds=$(date +%s)
             ((elapsedSeconds = currentSeconds - lastModificationSeconds))
             elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
-            echo "cscs_private_key: $cscs_private_key ==> is very recent ==> $elapsedHours hours. Nothing to do."
+            echog "cscs_private_key: $cscs_private_key ==> is very recent (2) ==> $elapsedHours hours. Nothing to do."
         fi
     else
         echog "cscs_private_key: $cscs_private_key ==> does not exist. Will run cscs-keygen.py"
