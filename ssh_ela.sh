@@ -14,12 +14,20 @@ echob () {
 
 
 ssh_ela () {
-    running_cscs_keygen="true"
+    my_cscs_username="aglensk" 
     folder_ssh=$HOME/.ssh
+
     folder_cscs=$folder_ssh/cscs_daily_key
+
+    cscs_public_key=$folder_cscs/cscs-key-cert.pub
+    cscs_public_key_script=$folder_ssh/cscs-key-cert.pub
+
+    cscs_private_key=$folder_cscs/cscs-key
+    cscs_private_key_script=$folder_ssh/cscs-key
+
+    running_cscs_keygen="true"
     [ ! -e $folder_cscs ] && mkdir -p $folder_cscs
     folder_control_path_files="$HOME/.ssh/ControlPath_files"
-    my_cscs_username="aglensk" 
     echob "for now fixed my_cscs_username to $my_cscs_username, change this later on"
     [ ! -e $folder_control_path_files ] && mkdir -p $folder_control_path_files
 
@@ -32,6 +40,10 @@ ssh_ela () {
         # echo "back: $back"
         if [ "$back" == "ela" ];then
             echog "Great, you are successfully connected to ela through ControlPathFile $control_path_file. Nothing to do."
+            echog "scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key-cert.pub"
+            scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key-cert.pub
+            echog "scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key"
+            scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key
             return 0
         else
             echob "It seems the ControlPathFile $control_path_file has no working ssh connection. Will remove it and try to connect."
@@ -39,10 +51,9 @@ ssh_ela () {
         fi
     fi    
 
-    cscs_public_key=$folder_cscs/cscs-key-cert.pub
-    cscs_public_key_script=$folder_ssh/cscs-key-cert.pub
-    # echo "cscs_public_key: $cscs_public_key"
 
+    # echo "cscs_public_key: $cscs_public_key"
+    # echo '111'
     if [ -e "$cscs_public_key" ];then
         # echo "File $cscs_public_key exists."
         if [[ $(find "$cscs_public_key" -mtime +1 -print) ]]; then
@@ -56,18 +67,26 @@ ssh_ela () {
             currentSeconds=$(date +%s)
             ((elapsedSeconds = currentSeconds - lastModificationSeconds))
             elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
-            echog "cscs_public_key: $cscs_public_key ==> is very recent (1) ==> $elapsedHours hours. Nothing to do."
-            running_cscs_keygen="false"
+            smaller_24h=`echo "$elapsedHours < 24" | bc`
+            if [ "$smaller_24h" = "1" ];then
+                echog "cscs_public_key: $cscs_public_key ==> is very recent (1) ==> $elapsedHours hours. Nothing to do."
+                running_cscs_keygen="false"
+            else
+                # echog "cscs_public_key: $cscs_public_key ==> is older then 24 hours. Will rm $cscs_public_key and $cscs_private_key and run cscs-keygen.py"
+                rm -f $cscs_public_key # file is older then one day
+                rm -f $cscs_private_key # file is older then one day
+                echog "cscs_public_key : $cscs_public_key ==> I have removed it since it was older then one day ($elapsedHours hours). Will run cscs-keygen.py"
+            fi
         fi
     else
         echog "cscs_public_key : $cscs_public_key ==> does not exist. Will run cscs-keygen.py"
     fi
 
 
-    cscs_private_key=$folder_cscs/cscs-key
-    cscs_private_key_script=$folder_ssh/cscs-key
-
+    # echo "NOW EXIT 345"
+    # exit
     # echo "cscs_private_key: $cscs_private_key"
+    
     if [ -e "$cscs_private_key" ];then
         # echo "File $cscs_private_key exists."
         if [[ $(find "$cscs_private_key" -mtime +1 -print) ]]; then
@@ -173,10 +192,10 @@ ssh_ela () {
                 echog "File $cscs_private_key exists and is not older than 1 day. As it should be."
             fi
         fi
-        echog "scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub"
-               scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key-cert.pub
-        echog "scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key"
-               scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:$HOME/.ssh/cscs-key
+        echog "scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key-cert.pub"
+               scp -i $cscs_private_key $cscs_public_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key-cert.pub
+        echog "scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key"
+               scp -i $cscs_private_key $cscs_private_key $my_cscs_username@ela.cscs.ch:/users/$my_cscs_username/.ssh/cscs-key
     fi
 
     echo "#############################################################"
