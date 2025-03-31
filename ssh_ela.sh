@@ -12,6 +12,10 @@ echob () {
 	printf "${BLUE}[ `basename $0` ] $1 ${NC}\n"
 }
 
+[ "`command -v python`" = "" ] && echo "python not found. Please install python using e.g.: sudo apt install -y python3" && exit 1
+# [ "`command -v ssh`" = "" ] && echo "ssh not found. Please install ssh." && exit 1
+# [ "`command -v scp`" = "" ] && echo "scp not found. Please install scp." && exit 1
+# [ "`command -v op`" = "" ] && echo "op not found. Please install op." && exit 1
 # Get the directory of the script
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 echo "Script is located in: $SCRIPT_DIR"
@@ -61,7 +65,6 @@ fi
     running_cscs_keygen="true"
     [ ! -e $folder_cscs ] && mkdir -p $folder_cscs
     folder_control_path_files="$HOME/.ssh/ControlPath_files"
-    echob "for now fixed my_cscs_username to $my_cscs_username, change this later on"
     [ ! -e $folder_control_path_files ] && mkdir -p $folder_control_path_files
 
     control_path_file="$HOME/.ssh/ControlPath_files/$my_cscs_username@ela.cscs.ch:22"
