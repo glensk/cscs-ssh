@@ -18,7 +18,7 @@ echob () {
 # [ "`command -v op`" = "" ] && echo "op not found. Please install op." && exit 1
 # Get the directory of the script
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
-echo "Script is located in: $SCRIPT_DIR"
+# echo "Script is located in: $SCRIPT_DIR"
 
 
 ssh_ela () {
@@ -185,9 +185,9 @@ fi
         fi
         fi
         fi
-        echo "cscs_username:$cscs_username"
-        echo "cscs_passwords:$cscs_passwords"
-        echo "cscs_otp:$cscs_otp"
+        # echo "cscs_username:$cscs_username"
+        # echo "cscs_passwords:$cscs_passwords"
+        # echo "cscs_otp:$cscs_otp"
         # echog "#############################################################"
         # echog "# Next you will need your CSCS credentials ($my_cscs_username, pw, OTP)"
         # echog "#############################################################"
