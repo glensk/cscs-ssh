@@ -28,8 +28,8 @@ ssh_ela () {
         echor "my_cscs_username is empty. Please provide it as a first argument. Exit."
         return 1
     fi
-    $cscs_passwords="$2"
-    $cscs_otp="$3"
+    cscs_passwords="$2"
+    cscs_otp="$3"
 
 
 if [ "$USER" != 'glensk' ];then
@@ -48,6 +48,9 @@ if [ "$2" = "" ];then
 fi
 fi
 fi
+    echo "my_cscs_username: $my_cscs_username"
+    echo "cscs_passwords: $cscs_passwords"
+    echo "cscs_otp: $cscs_otp"
 
 
 
