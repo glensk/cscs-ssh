@@ -18,7 +18,32 @@ echo "Script is located in: $SCRIPT_DIR"
 
 
 ssh_ela () {
-    my_cscs_username="aglensk" 
+    my_cscs_username="$1"
+    [ "$USER" = "glensk" ] && my_cscs_username="aglensk"
+    if [ "$my_cscs_username" = "" ];then
+        echor "my_cscs_username is empty. Please provide it as a first argument. Exit."
+        return 1
+    fi
+
+if [ "$USER" != 'glensk' ];then
+    cscs_passwords=$2
+    if [ "$cscs_passwords" = "" ];then
+        echor "cscs_passwords is empty. Please provide it as a second argument. Exit."
+        return 1
+    fi
+    cscs_otp=$3
+    if [ "$cscs_otp" = "" ];then
+        echor "cscs_otp is empty. Please provide it as a third argument. Exit."
+        return 1
+    fi
+fi
+
+
+
+
+
+
+
     folder_ssh=$HOME/.ssh
 
     folder_cscs=$folder_ssh/cscs_daily_key
@@ -126,24 +151,23 @@ ssh_ela () {
         cd $SCRIPT_DIR
         echog "Am now in folder: `pwd`"
         echog "Running \`op item get ...\` to get cscs_username."
-        cscs_username=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --reveal --field username`
-        if [ "$cscs_username" = "" ];then
-            echor "cscs_username is empty. Exit."
-            return 1
+        cscs_username=$my_cscs_username
+
+        if [ "$USER" = "glensk" ];then # in this case I use 1password
+            echog "cscs_username: $cscs_username ==> Now running \`op item get ...\` to get cscs_passwords."
+            cscs_passwords=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --reveal --field password`
+            if [ "$cscs_passwords" = "" ];then
+                echor "cscs_passwords is empty. Exit."
+                return 1
+            fi
+            echog "cscs_passwords: Got it. ==> Now running \`op item get ...\` to get cscs_otp."
+            cscs_otp=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --otp`
+            if [ "$cscs_otp" = "" ];then
+                echor "cscs_otp is empty. Exit."
+                return 1
+            fi
+            echog "cscs_otp: Got it"
         fi
-        echog "cscs_username: $cscs_username ==> Now running \`op item get ...\` to get cscs_passwords."
-        cscs_passwords=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --reveal --field password`
-        if [ "$cscs_passwords" = "" ];then
-            echor "cscs_passwords is empty. Exit."
-            return 1
-        fi
-        echog "cscs_passwords: Got it. ==> Now running \`op item get ...\` to get cscs_otp."
-        cscs_otp=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --otp`
-        if [ "$cscs_otp" = "" ];then
-            echor "cscs_otp is empty. Exit."
-            return 1
-        fi
-        echog "cscs_otp: Got it"
 
         # echog "#############################################################"
         # echog "# Next you will need your CSCS credentials ($my_cscs_username, pw, OTP)"
@@ -216,4 +240,10 @@ ssh_ela () {
     ssh -i $cscs_private_key $my_cscs_username@ela.cscs.ch
 }
 
-ssh_ela
+username=$1
+passwords=$2
+otp=$3
+echo "Username: $username"
+echo "Password: $passwords"
+echo "OTP: $otp"
+ssh_ela $username $passwords $otp
