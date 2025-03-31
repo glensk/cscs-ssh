@@ -184,7 +184,7 @@ fi
         # echog "# Next you will need your CSCS credentials ($my_cscs_username, pw, OTP)"
         # echog "#############################################################"
         echog "==> running: python cscs-keygen.py to download the daily ssh-key file pair from cscs."
-        python cscs-keygen.py $cscs_username $cscs_passwords $cscs_otp
+        python3 cscs-keygen.py $cscs_username $cscs_passwords $cscs_otp
         echog "==> running: python cscs-keygen.py done"
 
         # touch $folder_ssh/cscs-key
