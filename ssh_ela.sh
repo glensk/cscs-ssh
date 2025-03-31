@@ -12,6 +12,10 @@ echob () {
 	printf "${BLUE}[ `basename $0` ] $1 ${NC}\n"
 }
 
+# Get the directory of the script
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+echo "Script is located in: $SCRIPT_DIR"
+
 
 ssh_ela () {
     my_cscs_username="aglensk" 
@@ -47,7 +51,7 @@ ssh_ela () {
             return 0
         else
             echob "It seems the ControlPathFile $control_path_file has no working ssh connection. Will remove it and try to connect."
-            rm $control_path_file   
+            rm -f $control_path_file   
         fi
     fi    
 
@@ -56,23 +60,25 @@ ssh_ela () {
     # echo '111'
     if [ -e "$cscs_public_key" ];then
         # echo "File $cscs_public_key exists."
+        path_to_file=$cscs_public_key
+        lastModificationSeconds=$(date -r "$path_to_file" +%s)
+        currentSeconds=$(date +%s)
+        ((elapsedSeconds = currentSeconds - lastModificationSeconds))
+        elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
+        smaller_24h=`echo "$elapsedHours < 24" | bc`
+
         if [[ $(find "$cscs_public_key" -mtime +1 -print) ]]; then
-            echo "rm $cscs_public_key"
-            rm $cscs_public_key # file is older then one day
-            echo "cscs_public_key : $cscs_public_key ==> I have removed it since it was older then one day. Will run cscs-keygen.py"
+            echo "rm -f $cscs_public_key"
+            rm -f $cscs_public_key # file is older then one day
+            echog "cscs_public_key : $cscs_public_key ==> I have removed it since it was older then one day ($elapsedHours hours). Will run cscs-keygen.py"
         else
             # file exists and is recent
-            path_to_file=$cscs_public_key
-            lastModificationSeconds=$(date -r "$path_to_file" +%s)
-            currentSeconds=$(date +%s)
-            ((elapsedSeconds = currentSeconds - lastModificationSeconds))
-            elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
-            smaller_24h=`echo "$elapsedHours < 24" | bc`
+
             if [ "$smaller_24h" = "1" ];then
-                echog "cscs_public_key: $cscs_public_key ==> is very recent (1) ==> $elapsedHours hours. Nothing to do."
+                echog "cscs_public_key: $cscs_public_key ==> is very recent (1) ($elapsedHours hours). Nothing to do."
                 running_cscs_keygen="false"
             else
-                # echog "cscs_public_key: $cscs_public_key ==> is older then 24 hours. Will rm $cscs_public_key and $cscs_private_key and run cscs-keygen.py"
+                # echog "cscs_public_key: $cscs_public_key ==> is older then 24 hours. Will rm -f $cscs_public_key and $cscs_private_key and run cscs-keygen.py"
                 rm -f $cscs_public_key # file is older then one day
                 rm -f $cscs_private_key # file is older then one day
                 echog "cscs_public_key : $cscs_public_key ==> I have removed it since it was older then one day ($elapsedHours hours). Will run cscs-keygen.py"
@@ -89,19 +95,21 @@ ssh_ela () {
     
     if [ -e "$cscs_private_key" ];then
         # echo "File $cscs_private_key exists."
+        path_to_file=$cscs_private_key
+        lastModificationSeconds=$(date -r "$path_to_file" +%s)
+        currentSeconds=$(date +%s)
+        ((elapsedSeconds = currentSeconds - lastModificationSeconds))
+        elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
+
         if [[ $(find "$cscs_private_key" -mtime +1 -print) ]]; then
-            echo "rm $cscs_private_key"
-            rm $cscs_private_key # file is older then one day
-            echo "cscs_private_key: $cscs_private_key ==> I have removed it since it was older then one day. Will run cscs-keygen.py"
+            echo "rm -f $cscs_private_key"
+            rm -f $cscs_private_key # file is older then one day
+            echog "cscs_private_key: $cscs_private_key ==> I have removed it since it was older then one day ($elapsedHours hours). Will run cscs-keygen.py."
             [ "$running_cscs_keygen" = "false" ] && running_cscs_keygen="true"
         else
             # file exists and is recent
-            path_to_file=$cscs_private_key
-            lastModificationSeconds=$(date -r "$path_to_file" +%s)
-            currentSeconds=$(date +%s)
-            ((elapsedSeconds = currentSeconds - lastModificationSeconds))
-            elapsedHours=`echo $elapsedSeconds | awk '{print $1/3600}'`
-            echog "cscs_private_key: $cscs_private_key ==> is very recent (2) ==> $elapsedHours hours. Nothing to do."
+
+            echog "cscs_private_key: $cscs_private_key ==> is very recent (2) ($elapsedHours hours). Nothing to do."
         fi
     else
         echog "cscs_private_key: $cscs_private_key ==> does not exist. Will run cscs-keygen.py"
@@ -109,13 +117,13 @@ ssh_ela () {
     fi
 
 
-    [ ! -e "$cscs_public_key" ] && [ -e   "$cscs_private_key" ] && rm $cscs_private_key && running_cscs_keygen="true"
-    [ -e   "$cscs_public_key" ] && [ ! -e "$cscs_private_key" ] && rm $cscs_public_key  && running_cscs_keygen="true"
+    [ ! -e "$cscs_public_key" ] && [ -e   "$cscs_private_key" ] && rm -f $cscs_private_key && running_cscs_keygen="true"
+    [ -e   "$cscs_public_key" ] && [ ! -e "$cscs_private_key" ] && rm -f $cscs_public_key  && running_cscs_keygen="true"
     [ ! -e "$cscs_public_key" ] && [ ! -e "$cscs_private_key" ] && running_cscs_keygen="true"
 
     # echo "running_cscs_keygen: $running_cscs_keygen"
     if [ "$running_cscs_keygen" = "true" ];then
-        cd ~/gdrive/repos_sdsc/cscs-ssh
+        cd $SCRIPT_DIR
         echog "Am now in folder: `pwd`"
         echog "Running \`op item get ...\` to get cscs_username."
         cscs_username=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --reveal --field username`

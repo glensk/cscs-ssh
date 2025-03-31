@@ -110,9 +110,9 @@ def main():
     user = sys.argv[1]
     pwd = sys.argv[2]
     otp = sys.argv[3]
-    print("user: ", user)
-    print("pwd: ", pwd)
-    print("otp: ", otp)
+    # print("user: ", user)
+    # print("pwd: ", pwd)
+    # print("otp: ", otp)
     # sys.exit()
     # bar = IncrementalBar('Retrieving signed SSH keys:', max = 3)
     print("Retrieving signed SSH keys...")
