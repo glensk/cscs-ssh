@@ -179,11 +179,14 @@ fi
         fi
         fi
         fi
-
+        echo "cscs_username:$cscs_username"
+        echo "cscs_passwords:$cscs_passwords"
+        echo "cscs_otp:$cscs_otp"
         # echog "#############################################################"
         # echog "# Next you will need your CSCS credentials ($my_cscs_username, pw, OTP)"
         # echog "#############################################################"
         echog "==> running: python cscs-keygen.py to download the daily ssh-key file pair from cscs."
+
         python3 cscs-keygen.py $cscs_username $cscs_passwords $cscs_otp
         echog "==> running: python cscs-keygen.py done"
 
