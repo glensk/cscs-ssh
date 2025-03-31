@@ -158,6 +158,8 @@ fi
         cscs_username=$my_cscs_username
 
         if [ "$USER" = "glensk" ];then # in this case I use 1password
+        if [ "$1" = "" ];then
+        if [ "$2" = "" ];then
             echog "cscs_username: $cscs_username ==> Now running \`op item get ...\` to get cscs_passwords."
             cscs_passwords=`op item get sns6rmk2wbh7nohznpdnsixmly --account my.1password.com --reveal --field password`
             if [ "$cscs_passwords" = "" ];then
@@ -171,6 +173,8 @@ fi
                 return 1
             fi
             echog "cscs_otp: Got it"
+        fi
+        fi
         fi
 
         # echog "#############################################################"
