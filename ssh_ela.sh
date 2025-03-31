@@ -48,9 +48,9 @@ if [ "$2" = "" ];then
 fi
 fi
 fi
-    echo "my_cscs_username: $my_cscs_username"
-    echo "cscs_passwords: $cscs_passwords"
-    echo "cscs_otp: $cscs_otp"
+    # echob "my_cscs_username: $my_cscs_username"
+    # echob "cscs_passwords: $cscs_passwords"
+    # echob "cscs_otp: $cscs_otp"
 
 
 
