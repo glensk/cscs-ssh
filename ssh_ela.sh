@@ -12,7 +12,7 @@ echob () {
 	printf "${BLUE}[ `basename $0` ] $1 ${NC}\n"
 }
 
-[ "`command -v python`" = "" ] && echo "python not found. Please install python using e.g.: sudo apt install -y python3" && exit 1
+[ "`command -v python3`" = "" ] && echo "python not found. Please install python using e.g.: sudo apt install -y python3" && exit 1
 # [ "`command -v ssh`" = "" ] && echo "ssh not found. Please install ssh." && exit 1
 # [ "`command -v scp`" = "" ] && echo "scp not found. Please install scp." && exit 1
 # [ "`command -v op`" = "" ] && echo "op not found. Please install op." && exit 1
