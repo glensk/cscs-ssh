@@ -19,13 +19,15 @@ echo "Script is located in: $SCRIPT_DIR"
 
 ssh_ela () {
     my_cscs_username="$1"
-    [ "$USER" = "glensk" ] && my_cscs_username="aglensk"
+    [ "$USER" = "glensk" ] && [ "$1" = "" ] && my_cscs_username="aglensk"
     if [ "$my_cscs_username" = "" ];then
         echor "my_cscs_username is empty. Please provide it as a first argument. Exit."
         return 1
     fi
 
 if [ "$USER" != 'glensk' ];then
+if [ "$1" = "" ];then
+if [ "$2" = "" ];then
     cscs_passwords=$2
     if [ "$cscs_passwords" = "" ];then
         echor "cscs_passwords is empty. Please provide it as a second argument. Exit."
@@ -36,6 +38,8 @@ if [ "$USER" != 'glensk' ];then
         echor "cscs_otp is empty. Please provide it as a third argument. Exit."
         return 1
     fi
+fi
+fi
 fi
 
 
