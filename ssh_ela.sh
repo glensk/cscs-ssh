@@ -23,7 +23,8 @@ SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 ssh_ela () {
     my_cscs_username="$1"
-    [ "$USER" = "glensk" ] && [ "$1" = "" ] && my_cscs_username="aglensk"
+    [ "$USER" = "glensk" ] || [ "$USER" = "albert" ] && [ "$1" = "" ] && my_cscs_username="aglensk"
+    echo "my_cscs_username xyz: $my_cscs_username";
     if [ "$my_cscs_username" = "" ];then
         echor "my_cscs_username is empty. Please provide it as a first argument. Exit."
         return 1
@@ -32,7 +33,7 @@ ssh_ela () {
     cscs_otp="$3"
 
 
-if [ "$USER" != 'glensk' ];then
+if [ "$USER" != 'glensk' ] && [ "$USER" != "albert" ];then
 if [ "$1" = "" ];then
 if [ "$2" = "" ];then
     cscs_passwords=$2
@@ -166,7 +167,7 @@ fi
         echog "Running \`op item get ...\` to get cscs_username."
         cscs_username=$my_cscs_username
 
-        if [ "$USER" = "glensk" ];then # in this case I use 1password
+        if [ "$USER" = "glensk" ] || [ "$USER" = "albert" ];then # in this case I use 1password
         if [ "$1" = "" ];then
         if [ "$2" = "" ];then
             echog "cscs_username: $cscs_username ==> Now running \`op item get ...\` to get cscs_passwords."
