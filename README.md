@@ -1,6 +1,5 @@
 # mfa-cscs-access
 
-
 The repository contains a simple Python script [cscs-keygen.py] and a shell script [cscs-keygen.sh] which can be used as a command line tool for fetching public and private keys signed by CSCS'S CA after authenticating using MFA. You can then use those keys to ssh to CSCS'login nodes.
 
 For using the python script, these are the steps:
