@@ -1,1 +1,5 @@
 .vscode/
+
+# Local-only Claude Code docs (do not push)
+CLAUDE.md
+CLAUDE.md.back
