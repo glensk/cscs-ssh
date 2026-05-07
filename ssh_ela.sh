@@ -108,11 +108,11 @@ ssh_ela () {
     if [ ! -e "$cscs_cert" ]; then
         echob "Cert $cscs_cert missing — will sign."
         needs_sign="true"
-    elif [ -n "$(find "$cscs_cert" -mtime +1 -print 2>/dev/null)" ]; then
-        echob "Cert $cscs_cert is older than 24h — will re-sign."
+    elif [ -n "$(find "$cscs_cert" -mmin +1380 -print 2>/dev/null)" ]; then
+        echob "Cert $cscs_cert is older than 23h — will re-sign (cert expires at 24h)."
         needs_sign="true"
     else
-        echog "Cert $cscs_cert is fresh (<24h) — skipping cscs-key sign."
+        echog "Cert $cscs_cert is fresh (<23h) — skipping cscs-key sign."
     fi
 
     if [ "$needs_sign" = "true" ]; then
@@ -129,7 +129,7 @@ ssh_ela () {
         echor "$cscs_cert does not exist after sign. Exit."
         return 1
     fi
-    if [ -n "$(find "$cscs_cert" -mtime +1 -print 2>/dev/null)" ]; then
+    if [ -n "$(find "$cscs_cert" -mmin +1440 -print 2>/dev/null)" ]; then
         echor "$cscs_cert exists but is older than 24h. Exit."
         return 1
     fi
