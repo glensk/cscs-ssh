@@ -4,8 +4,9 @@
 # Migration note (2026-05-04): the legacy POST-username/password/OTP API at
 # sshservice.cscs.ch is decommissioned. This script now uses the new `cscs-key`
 # CLI (https://github.com/eth-cscs/cscs-key), which signs a *locally* generated
-# keypair via OIDC SSO. Run once interactively to do the browser SSO; the OIDC
-# token then caches for ~24h so subsequent invocations are silent.
+# keypair via OIDC SSO. Each sign does the browser SSO; the script deletes
+# cscs-key's cached OIDC token right after signing (it could sign any key).
+# The 24h cert keeps later invocations the same day silent.
 #
 # Usage:
 #   bash ssh_ela.sh              # uses $my_cscs_username (default: aglensk)
@@ -40,7 +41,8 @@ Behaviour:
   4. SCPs the keypair + cert to ela so chained jumps to daint/eiger work.
   5. Opens an interactive SSH session to ela.cscs.ch.
 
-First run opens a browser for CSCS OIDC SSO (token caches ~24h).
+Each sign opens a browser for CSCS OIDC SSO; cscs-key's cached token is
+deleted right after signing.
 EOF
 }
 
@@ -118,10 +120,16 @@ ssh_ela () {
     if [ "$needs_sign" = "true" ]; then
         echog "Running: cscs-key sign -f $cscs_private_key"
         echog "(first run today may open a browser for CSCS OIDC SSO)"
-        cscs-key sign -f "$cscs_private_key" || {
+        sign_rc=0
+        cscs-key sign -f "$cscs_private_key" || sign_rc=$?
+        # cscs-key caches its OIDC refresh token (~24h), which can sign ANY
+        # presented public key. Drop it right after use: the cert lives 24h, so
+        # the next sign needs SSO anyway (tp#97 R0.1, 2026-09-28).
+        rm -f "$HOME/Library/Caches/ch.cscs.cscs-key/token.json" "$HOME/.cache/cscs-key/token.json"
+        if [ "$sign_rc" -ne 0 ]; then
             echor "cscs-key sign failed. Exit."
             return 1
-        }
+        fi
     fi
 
     # 4) Sanity: cert must exist and be fresh after the sign step.
