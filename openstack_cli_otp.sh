@@ -1,17 +1,21 @@
 #!/bin/bash
-
+# shellcheck disable=SC2016,SC2154,SC2086,SC2046,SC2000
+# (legacy word-splitting of the project list is intentional; client_id/secret come from the eval below)
 
 # This script sets the environment properly so that a user can use the OpenStack CLI with OTP enabled
 
-client_id="castor"
-client_secret="c6cc606a-5ae4-4e3e-8a19-753ad265f521"
+# The public CSCS Keycloak client (id + secret) lives in .env.sops (SOPS, tp#1386);
+# it is read into this shell through sops-env-run, never from a plaintext file.
+_otp_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+eval "$(sops-env-run "$_otp_dir/.env.sops" -- bash -c 'printf "client_id=%q\nclient_secret=%q\n" "$CSCS_OIDC_CLIENT_ID" "$CSCS_OIDC_CLIENT_SECRET"')"
+unset _otp_dir
 
 
 #Read Inputs
-read -p "Username : " username
-read -s -p "Password: " password
+read -r -p "Username : " username
+read -r -s -p "Password: " password
 echo
-read -s -p "Enter OTP: " otp
+read -r -s -p "Enter OTP: " otp
 echo
 
 
@@ -75,7 +79,7 @@ elif [ $(echo -n "$PROJECTS" | grep -c '^') -eq 1 ]; then
   echo " * Selected project $PROJECT_NAME: $PROJECT_ID"
 else
   # More than one project, we need a menu
-  SAVEIFS=$IFS; IFS=$'\n' read -a lines -d '' <<< "$PROJECTS"
+  SAVEIFS=$IFS; IFS=$'\n' read -r -a lines -d '' <<< "$PROJECTS"
   declare -a lines; IFS=$SAVEIFS
   PS3="Please choose an option: "
   select option in "${lines[@]}"; do
@@ -91,9 +95,7 @@ fi
 
 # Getting the scoped token:
 echo "[openstack --os-project-id $PROJECT_ID token issue]"
-SCOPED_TOKEN="$(openstack --os-project-id $PROJECT_ID token issue --format value --column id)"
-
-if [ $? -ne 0 ]; then
+if ! SCOPED_TOKEN="$(openstack --os-project-id $PROJECT_ID token issue --format value --column id)"; then
     echo " * WARNING: Failed to get scoped token, but unscoped commands should work fine"
     return
 fi

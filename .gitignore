@@ -4,3 +4,11 @@
 CLAUDE.md
 CLAUDE.md.back
 AGENTS.md
+
+# plaintext dotenv files never; the SOPS file is committed (tp#1386)
+.env
+.env.*
+*.env
+!.env.example
+!.env.sops
+!*.sops

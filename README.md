@@ -61,7 +61,7 @@ cscs-key revoke <serial>
 
 - `ssh_ela.sh` — daily login orchestrator
 - `ela_show_HD_allocation_and_usage.sh` — Slurm node-hour reporting (run on ela)
-- `openstack_cli_otp.env` — independent OpenStack/Keycloak token bootstrap (sourced)
+- `openstack_cli_otp.sh` — independent OpenStack/Keycloak token bootstrap (sourced). The Keycloak client id + secret it needs are in `.env.sops` (SOPS, read through `sops-env-run`). Classification (tp#1386, 2026-10-28): the script's own comment (and AGENTS.md) treat it as the public Keycloak client of the OpenStack CLI, not a user credential; not verified against CSCS's docs; it sits in SOPS only so no secret-looking literal lives in a public repo. It is not rotated and has no credential row.
 
 ## Key paths
 
